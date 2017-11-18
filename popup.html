@@ -1,0 +1,55 @@
+<head>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="source-select">
+    <span class="source-select--item selected">WSJ</span>
+    <span class="source-select--item">LA Times</span>
+    <span class="source-select--item">New York Times</span>
+    <span class="source-select--item">USA Today</span>
+  </div>
+  <div class="archive">
+    <div class="calendar--wrapper">
+      <div class="calendar">
+        <div class="calendar--month-and-year">
+          <span class="calendar--month">November</span>, <span class="calendar--year">2017</span>
+        </div>
+        <div class="calendar--labels">
+          <span>Sun</span>
+          <span>Mon</span>
+          <span>Tue</span>
+          <span>Wed</span>
+          <span>Thu</span>
+          <span>Fri</span>
+          <span>Sat</span>
+        </div>
+      </div>
+    </div>
+    <div class="preview--wrapper">
+      <div class="preview">
+        <div class="title">
+          NY Times, Thursday, November 16, 2017
+        </div>
+        <div class="author">
+          Alex Eylar / Will Shortz
+        </div>
+        <div class="buttons">
+          <div class="btn preview" hidden>
+            Preview -- not implemented
+          </div>
+          <div class="btn download">
+            Download
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="fetch.js"></script>
+    <script src="puz.js"></script>
+    <script src="LZString.js"></script>
+    <script src="loaders/wsj.js"></script>
+    <script src="loaders/nytimes.js"></script>
+    <script src="loaders/usatoday.js"></script>
+    <script src="loaders/latimes.js"></script>
+    <script src="download.js"></script>
+    <script src="popup.js"></script>
+</body>
