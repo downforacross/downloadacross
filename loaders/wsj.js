@@ -105,9 +105,9 @@ function getWSJURL(url, date, callback) {
           if (puzzleId) {
             var dataURL = `https://blogs.wsj.com/puzzle/crossword/${puzzleId}/data.json`;
             callback(dataURL);
-          }
+          } else callback();
         });
-      }
+      } else callback();
     },
   );
 }
@@ -127,7 +127,11 @@ var WSJLoader = {
     console.log(date);
     var url1 = `https://blogs.wsj.com/puzzle/${date.strSlashes}/`;
     getWSJURL(url1, date, function(url) {
-      loadWSJ(url, date, callback);
+      if (url) {
+        loadWSJ(url, date, callback);
+      } else {
+        callback();
+      }
     });
   },
 };

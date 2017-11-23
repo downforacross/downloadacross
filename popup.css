@@ -121,6 +121,11 @@ body {
   background-color: #666666;
 }
 
+.calendar--day.errors {
+  color: #CCCCCC;
+}
+
+
 
 .preview--wrapper {
   display: flex;

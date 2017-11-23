@@ -60,7 +60,11 @@ function parseXML(doc, date) {
 function loadUSAToday(url, date, callback) {
   fetch(url,
     function success(response) {
-      callback(parseXML(response, date));
+      if (response.indexOf('Not Found') !== -1) {
+        callback();
+      } else {
+        callback(parseXML(response, date));
+      }
     },
   );
 }

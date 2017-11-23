@@ -95,8 +95,13 @@ function loadNYT(url, date, callback) {
       var pluribus = extractNYTMagic(response);
       var state = unpackJSON(pluribus);
       var raw = state.gamePageData;
-      var puzzle = convertRawNYT(raw, date);
-      callback(puzzle);
+      console.log(raw);
+      if (!raw.meta.id) {
+        callback();
+      } else {
+        var puzzle = convertRawNYT(raw, date);
+        callback(puzzle);
+      }
     },
   );
 }

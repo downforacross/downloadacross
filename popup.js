@@ -13,26 +13,45 @@ var daysOfWeek = [ 'sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat' ];
 var curhash = ''; // empty
 var puzzles = {};
 var tagged;
-var saved = {};
+var errors;
 
 function loadState(cbk) {
   chrome.storage.sync.get({
     tagged: {},
+    errors: {},
+    source: {},
   }, function(items) {
     if (items) {
       tagged = items.tagged;
-      console.log('loaded', tagged);
+      errors = items.errors;
+      selectSource(items.source);
+      console.log('loaded', items);
     }
     cbk();
   });
 }
 
+function selectSource(source) {
+  if (!source) return;
+  var sources = document.querySelectorAll('.source-select--item');
+  sources.forEach(function(sourceEl) {
+    if (sourceEl.textContent === source) {
+      document.querySelector('.source-select--item.selected').classList.remove('selected');
+      sourceEl.classList.add('selected');
+    }
+  });
+}
+
+
 function saveState() {
   if (!tagged) return;
-  console.log('saving', tagged);
-  chrome.storage.sync.set({
+  var saveObj = {
     tagged: tagged,
-  });
+    errors: errors,
+    source: getSource(),
+  };
+  console.log('saving', saveObj);
+  chrome.storage.sync.set(saveObj);
 }
 
 function getSource() {
@@ -98,6 +117,18 @@ function update() {
   if (!puzzles[hash]) {
     console.log('grabbing', source, date);
     loader.load(date, function(_puzzle) {
+      if (!_puzzle) {
+        _puzzle = {
+          error: true,
+        };
+        if (errors) {
+          errors[hash] = true;
+        }
+      } else {
+        if (errors) {
+          errors[hash] = false;
+        }
+      }
       puzzles[hash] = _puzzle;
       render();
     });
@@ -109,8 +140,13 @@ function renderPuzzleInfo() {
   var title = document.querySelector('.title');
   var author = document.querySelector('.author');
   if (puzzle) {
-    title.innerHTML = puzzle.meta.title;
-    author.innerHTML = puzzle.meta.author;
+    if (puzzle.error) {
+      title.innerHTML = 'Error Loading Puzzle';
+      author.innerHTML = '';
+    } else {
+      title.innerHTML = puzzle.meta.title;
+      author.innerHTML = puzzle.meta.author;
+    }
   } else {
     title.innerHTML = '...';
     author.innerHTML = '...';
@@ -170,10 +206,17 @@ function renderCalendar() {
         }
 
         var hash = getHash(source, year, month, num);
-        if (tagged && tagged[hash]) {
+        var isTag = tagged && tagged[hash];
+        var isError = errors && errors[hash];
+        if (isTag && !isError) {
           el.classList.add('tagged');
         } else {
           el.classList.remove('tagged');
+        }
+        if (isError) {
+          el.classList.add('errors');
+        } else {
+          el.classList.remove('errors');
         }
       }
       num += 1;
@@ -194,6 +237,7 @@ function registerSourceClickEvents() {
       document.querySelector('.source-select--item.selected').classList.remove('selected');
       el.classList.add('selected');
       update();
+      saveState();
     }
   });
 }
@@ -217,7 +261,7 @@ function registerDownloadClickEvent() {
   download.onclick = function() {
     console.log('click');
     var puzzle = puzzles[curhash];
-    if (puzzle) {
+    if (puzzle && !puzzle.error) {
       console.log('downloading to ', puzzle.filename);
       downloadBlob(puz.encode(puzzle), puzzle.filename);
       if (tagged) {

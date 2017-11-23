@@ -1,4 +1,4 @@
-function fetch(url, callback, error) {
+function fetch(url, callback) {
   var xmlhttp = new XMLHttpRequest();
 
   xmlhttp.onreadystatechange = function() {
@@ -6,7 +6,7 @@ function fetch(url, callback, error) {
       callback && callback(xmlhttp.responseText);
     }
     else if (xmlhttp.status == 400) {
-      error && error();
+      callback();
     }
   }
   xmlhttp.open("GET", url, true);
