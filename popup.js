@@ -13,19 +13,33 @@ var daysOfWeek = [ 'sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat' ];
 var curhash = ''; // empty
 var puzzles = {};
 var tagged;
-var errors;
+var nonErrors;
+
+function selectDate(date) {
+  if (date && date.month && date.year) {
+    var monthEl = document.querySelector('.calendar--month');
+    var yearEl = document.querySelector('.calendar--year');
+    monthEl.textContent = date.month;
+    yearEl.textContent = '' + date.year;
+  }
+}
 
 function loadState(cbk) {
   chrome.storage.sync.get({
     tagged: {},
-    errors: {},
+    nonErrors: {},
     source: {},
+    date: {
+      month: months[1 + new Date().getMonth()],
+      year: new Date().getYear() + 1900,
+    },
   }, function(items) {
     if (items) {
-      tagged = items.tagged;
-      errors = items.errors;
-      selectSource(items.source);
       console.log('loaded', items);
+      tagged = items.tagged;
+      nonErrors = items.nonErrors;
+      selectSource(items.source);
+      selectDate(items.date);
     }
     cbk();
   });
@@ -42,13 +56,16 @@ function selectSource(source) {
   });
 }
 
-
 function saveState() {
   if (!tagged) return;
   var saveObj = {
     tagged: tagged,
-    errors: errors,
+    nonErrors: nonErrors,
     source: getSource(),
+    date: {
+      month: document.querySelector('.calendar--month').textContent,
+      year: document.querySelector('.calendar--year').textContent,
+    },
   };
   console.log('saving', saveObj);
   chrome.storage.sync.set(saveObj);
@@ -121,12 +138,12 @@ function update() {
         _puzzle = {
           error: true,
         };
-        if (errors) {
-          errors[hash] = true;
+        if (nonErrors) {
+          nonErrors[hash] = false;
         }
       } else {
-        if (errors) {
-          errors[hash] = false;
+        if (nonErrors) {
+          nonErrors[hash] = true;
         }
       }
       puzzles[hash] = _puzzle;
@@ -207,7 +224,7 @@ function renderCalendar() {
 
         var hash = getHash(source, year, month, num);
         var isTag = tagged && tagged[hash];
-        var isError = errors && errors[hash];
+        var isError = !nonErrors || !nonErrors[hash];
         if (isTag && !isError) {
           el.classList.add('tagged');
         } else {
@@ -256,6 +273,45 @@ function registerDayClickEvents() {
   });
 }
 
+function registerCalendarArrowEvents() {
+  var up = document.querySelector('.calendar--month-up');
+  var down = document.querySelector('.calendar--month-down');
+  function bumpMonth(dir) {
+    return function(ev) {
+      var monthEl = document.querySelector('.calendar--month');
+      var yearEl = document.querySelector('.calendar--year');
+      var prvMonth = monthEl.textContent;
+      var i = months.indexOf(prvMonth); // 1-indexed
+      var j = i + dir;
+      var nxtMonth = months[1 + (j + 11) % 12];
+      var prvYear = yearEl.textContent;
+      var k = parseInt(prvYear);
+      if (j === 0) {
+        k -= 1;
+      } else if (j === 13) {
+        k += 1;
+      }
+      var nxtYear = k;
+      selectDate({
+        month: nxtMonth,
+        year: nxtYear,
+      });
+
+      render();
+      update();
+    };
+  }
+  up.onclick = bumpMonth(1);
+  down.onclick = bumpMonth(-1);
+  up.onmousedown = function(e) {
+    e.preventDefault();
+  };
+  down.onmousedown = function(e) {
+    e.preventDefault();
+  };
+
+}
+
 function registerDownloadClickEvent() {
   var download = document.querySelector('.btn.download');
   download.onclick = function() {
@@ -275,6 +331,7 @@ function registerDownloadClickEvent() {
 loadState(function() {
   render();
   registerSourceClickEvents();
+  registerCalendarArrowEvents();
   registerDayClickEvents();
   registerDownloadClickEvent();
 });

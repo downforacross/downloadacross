@@ -13,11 +13,23 @@ var convertRawNYT = function(raw, date) {
     cols = dim.columnCount;
 
   var grid = [];
+  var circles = [], shades = [];
   for (var i = 0; i < rows; i += 1) {
     grid[i] = [];
     for (var j = 0; j < cols; j += 1) {
       var cell = raw.cells[i*cols + j];
       grid[i][j] = cell.answer || '.';
+
+      // cell.type: 1 --> empty
+      // 2 --> circled
+      // 3 --> shaded
+      // default --> block
+      if (cell.type === 2) {
+        circles.push(i * cols + j);
+      } else if (cell.type === 3) {
+        console.log('found shade', i * cols + j);
+        shades.push(i * cols + j);
+      }
     }
   }
 
@@ -59,7 +71,8 @@ var convertRawNYT = function(raw, date) {
     meta: meta,
     grid: grid,
     clues: clues,
-    circles: [],
+    circles: circles,
+    shades: shades,
     filename: filename,
   };
 }
@@ -95,7 +108,6 @@ function loadNYT(url, date, callback) {
       var pluribus = extractNYTMagic(response);
       var state = unpackJSON(pluribus);
       var raw = state.gamePageData;
-      console.log(raw);
       if (!raw.meta.id) {
         callback();
       } else {

@@ -42,6 +42,7 @@ body {
   height: min-content;
   width: min-content;
   padding: 20px;
+  user-select: none;
 }
 
 .calendar--wrapper {
@@ -55,6 +56,22 @@ body {
   font-size: 200%;
   text-align: center;
   font-weight: bold;
+}
+
+.calendar--heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-width: 340px;
+}
+
+.calendar--month-down, .calendar--month-up {
+  cursor: pointer;
+  font-weight: normal;
+  font-family: "courier new";
+  font-size: 17pt;
+  vertical-align: middle;
+  height: 100%;
 }
 
 .calendar--weeks {
@@ -89,13 +106,18 @@ body {
   position: relative;
   cursor: pointer;
   text-align: center;
-  vertical-align: middle;
-  width: 25px;
-  height: 20px;
+  width: 35px;
+  height: 21px;
+  padding-top: 2px;
+}
+
+.calendar--day span {
+  transform: translateY(-9px);
 }
 
 .calendar--day.selected {
   text-shadow: .7px 0 0 currentColor;
+  background-color: #EEE;
 }
 
 .calendar--day:hover {
@@ -113,11 +135,11 @@ body {
 .calendar--day.tagged .tag {
   position: absolute;
   left: 50%;
-  bottom: -1px;
+  bottom: 0px;
   transform: translateX(-50%);
-  width: 3px;
-  height: 3px;
-  border-radius: 2px;
+  width: 4px;
+  height: 4px;
+  border-radius: 4px;
   background-color: #666666;
 }
 

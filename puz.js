@@ -143,8 +143,54 @@ function Notes(puzzle) {
   return strToBytes(puzzle.meta.copyright);
 }
 
+function Extension(code, bytes) {
+  var codeBytes = strToBytes(code, '');
+  var length = bytes.length;
+  var lengthBytes = new Uint8Array(2);
+  lengthBytes[0] =  Math.floor(length / 256);
+  lengthBytes[1] = length % 256;
+  return concat([codeBytes, lengthBytes, bytes]);
+}
 
 function Rebus(puzzle) {
+  var table = {};
+  var sols = [];
+  var idx = 0;
+  puzzle.grid.forEach(function(row) {
+    row.forEach(function(cell) {
+      if (cell && cell.length > 1) {
+        var sol = cell;
+        if (sols.indexOf(sol) === -1) {
+          sols.push(sol);
+        }
+        table[idx] = sols.indexOf(sol) + 1;
+      }
+      idx += 1;
+    });
+  });
+
+  console.log('rebus', sols, table);
+  if (sols.length) {
+    return concat([Extension('GRBS', rbs), Extension('RTBL', rtbl)]);
+  }
+}
+
+function Circles(puzzle) {
+  var circles = puzzle.circles || [];
+  var shades = puzzle.shades || [];
+  if (circles.length + shades.length > 0) {
+    console.log('Circles', shades);
+    var markup = new Uint8Array(puzzle.grid.length * puzzle.grid[0].length);
+    circles.forEach(function(i) {
+      markup[i] = markup[i] | 128;
+    });
+    shades.forEach(function(i) {
+      console.log('shading', i);
+      markup[i] = markup[i] | 8;
+    });
+    console.log(markup);
+    return Extension('GEXT', markup);
+  }
 }
 
 // .puz format documentation: https://code.google.com/archive/p/puz/wikis/FileFormat.wiki
@@ -187,13 +233,15 @@ var format = [
   Notes,
 
   // ===== Extra Sections
+  Rebus,
+  Circles,
 ];
 
 var puz = {
   // returns a Uint8Array containing the bytes in .puz format
   encode: function(puzzle) {
     return concat(format.map(function(fn) {
-      return fn(puzzle);
+      return fn(puzzle) || new Uint8Array(0);
     }));
   },
 }

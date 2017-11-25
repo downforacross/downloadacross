@@ -6,7 +6,8 @@
     "storage",
     "activeTab",
     "https://picayune.uclick.com/*",
-    "https://www.nytimes.com/*"
+    "https://www.nytimes.com/*",
+    "https://blogs.wsj.com/*"
   ],
   "browser_action": {
     "default_title": "Download Puzzle",
