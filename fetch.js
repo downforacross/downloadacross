@@ -3,7 +3,11 @@ function fetch(url, callback) {
 
   xmlhttp.onreadystatechange = function() {
     if (xmlhttp.readyState == XMLHttpRequest.DONE) {   // XMLHttpRequest.DONE == 4
-      callback && callback(xmlhttp.responseText);
+      if (callback) {
+        callback(xmlhttp.responseText);
+      } else {
+        console.log(xmlhttp.responseText);
+      }
     }
     else if (xmlhttp.status == 400) {
       callback();

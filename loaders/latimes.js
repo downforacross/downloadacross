@@ -60,7 +60,16 @@ function parseXML(doc, date) {
 function loadLA(url, date, callback) {
   fetch(url,
     function success(response) {
-      callback(parseXML(response, date));
+      var puzzle = parseXML(response, date);
+      if (!puzzle) {
+        callback();
+      } else {
+        var ratingUrl = `http://crosswordfiend.com/ratings_count_json.php?puzz=${date.strHyphens}-la`;
+        getCFRating(ratingUrl, function(rating) {
+          puzzle.rating = rating;
+          callback(puzzle);
+        });
+      }
     },
   );
 }

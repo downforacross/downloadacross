@@ -27,7 +27,6 @@ var convertRawNYT = function(raw, date) {
       if (cell.type === 2) {
         circles.push(i * cols + j);
       } else if (cell.type === 3) {
-        console.log('found shade', i * cols + j);
         shades.push(i * cols + j);
       }
     }
@@ -112,7 +111,11 @@ function loadNYT(url, date, callback) {
         callback();
       } else {
         var puzzle = convertRawNYT(raw, date);
-        callback(puzzle);
+        var ratingUrl = `http://crosswordfiend.com/ratings_count_json.php?puzz=${date.strHyphens}-ny`;
+        getCFRating(ratingUrl, function(rating) {
+          puzzle.rating = rating;
+          callback(puzzle);
+        });
       }
     },
   );

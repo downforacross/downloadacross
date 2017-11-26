@@ -9,6 +9,7 @@ var loaders = {
 
 var months = [ null, 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 var daysOfWeek = [ 'sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat' ];
+var longDaysOfWeek = [ 'sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday' ];
 
 var curhash = ''; // empty
 var puzzles = {};
@@ -95,6 +96,11 @@ function makeDate(year, month, day) {
     dayOfWeek: date.getDay(),
     dayOfWeekStr: daysOfWeek[date.getDay()],
     strSlashes: pad(year, 4) + '/' + pad(month, 2) + '/' + pad(day, 2),
+    strHyphens: (longDaysOfWeek[date.getDay()] + '-' + months[month] + '-' + day + '-' + year).toLowerCase(),
+    yesterday: function() {
+      var d = new Date(date.getTime() - 1000 * 60 * 60 * 24);
+      return makeDate(1900 + d.getYear(), d.getMonth() + 1, d.getDate());
+    }
   };
 }
 
@@ -149,6 +155,21 @@ function update() {
       puzzles[hash] = _puzzle;
       render();
     });
+  }
+}
+
+function renderReview() {
+  var puzzle = puzzles[curhash];
+  var ratingEl = document.querySelector('.review--rating');
+  var votesEl = document.querySelector('.review--rating--votes');
+  if (puzzle && puzzle.rating && puzzle.rating.count) {
+    var rating = puzzle.rating.round_avg;
+    var votes = puzzle.rating.count;
+    ratingEl.textContent = `Crossword Fiend: ${rating}`;
+    votesEl.textContent = `(${votes} votes)`;
+  } else {
+    ratingEl.innerHTML = '&nbsp;';
+    votesEl.innerHTML = '&nbsp;';
   }
 }
 
@@ -245,6 +266,7 @@ function render() {
   saveState();
   renderPuzzleInfo();
   renderCalendar();
+  renderReview();
 }
 
 function registerSourceClickEvents() {
