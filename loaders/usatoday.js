@@ -1,3 +1,7 @@
+// loader for USA Today puzzle
+// extracts puzzle by parsing xml file hosted on "picayune.uclick.com"
+// example data url: http://picayune.uclick.com/comics/usaon/data/usaon171111-data.xml
+// valid from 2004/05/03 -- but with a few holes
 function convertClues(cluesEl) {
   var result = [];
   for (var el of cluesEl.children) {

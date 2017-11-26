@@ -158,7 +158,11 @@ function loadWSJ(url, date, callback) {
       } else {
         var ratingUrl = `http://crosswordfiend.com/ratings_count_json.php?puzz=${date.strHyphens}-wsj`;
         getCFRating(ratingUrl, function(rating) {
-          puzzle.rating = rating;
+          if (rating) {
+            puzzle.rating = rating;
+            var link = `http://crosswordfiend.com/${date.yesterday().strSlashes}/${date.strHyphens}/#wsj`;
+            puzzle.rating.link = link;
+          }
           callback(puzzle);
         });
       }

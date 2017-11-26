@@ -1,3 +1,8 @@
+// loader for the NY Times crossword puzzles
+// extracts the puzzle data from the html page directly by decompressing a "window.pluribus" magic-string
+// the page-load requires authentication -- and therefore requires a subscription. if the user is logged in, then their cookies will be used automatically for the requset
+// valid for the entire archive (1993/11/21)
+
 var unpackJSON = function(packed) {
   var unescaped = unescape(packed);
   var decompressed = LZString.decompress(unescaped);
@@ -111,9 +116,14 @@ function loadNYT(url, date, callback) {
         callback();
       } else {
         var puzzle = convertRawNYT(raw, date);
+
         var ratingUrl = `http://crosswordfiend.com/ratings_count_json.php?puzz=${date.strHyphens}-ny`;
         getCFRating(ratingUrl, function(rating) {
-          puzzle.rating = rating;
+          if (rating) {
+            puzzle.rating = rating;
+            var link = `http://crosswordfiend.com/${date.yesterday().strSlashes}/${date.strHyphens}/#nyt`;
+            puzzle.rating.link = link;
+          }
           callback(puzzle);
         });
       }

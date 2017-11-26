@@ -1,3 +1,6 @@
+// JS for main extension view -- handles view logic
+// also manages caching of puzzles, tracking fail-to-load
+
 var puzzle = null;
 
 var loaders = {
@@ -161,13 +164,18 @@ function update() {
 function renderReview() {
   var puzzle = puzzles[curhash];
   var ratingEl = document.querySelector('.review--rating');
+  var linkEl = document.querySelector('.review--link');
   var votesEl = document.querySelector('.review--rating--votes');
   if (puzzle && puzzle.rating && puzzle.rating.count) {
     var rating = puzzle.rating.round_avg;
     var votes = puzzle.rating.count;
-    ratingEl.textContent = `Crossword Fiend: ${rating}`;
+    var link = puzzle.rating.link;
+    linkEl.textContent = `Crossword Fiend`;
+    linkEl.href = link;
+    ratingEl.textContent = `: ${rating}`;
     votesEl.textContent = `(${votes} votes)`;
   } else {
+    linkEl.innerHTML = '';
     ratingEl.innerHTML = '&nbsp;';
     votesEl.innerHTML = '&nbsp;';
   }

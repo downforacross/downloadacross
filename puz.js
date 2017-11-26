@@ -144,16 +144,20 @@ function Notes(puzzle) {
 }
 
 function Extension(code, bytes) {
-  var codeBytes = strToBytes(code, '');
+  var codeBytes = strToBytes(code, ''); // must be length 4
   var length = bytes.length;
   var lengthBytes = new Uint8Array(2);
   lengthBytes[0] =  Math.floor(length / 256);
   lengthBytes[1] = length % 256;
-  return concat([codeBytes, lengthBytes, bytes]);
+  var checksum = new Uint8Array(2); // TODO implement this stuff
+  var header = concat([codeBytes, lengthBytes, checksum]);
+  var result = concat([header, bytes]);
+  console.log('Extension(', code, bytes.length, ')', header);
+  return result;
 }
 
 function Rebus(puzzle) {
-  var table = {};
+  var table = [];
   var sols = [];
   var idx = 0;
   puzzle.grid.forEach(function(row) {
@@ -169,9 +173,19 @@ function Rebus(puzzle) {
     });
   });
 
+  var grbs = new Uint8Array(puzzle.grid.length * puzzle.grid[0].length);
+  table.forEach(function(v, i) {
+    grbs[i] = v;
+  });
+  var enc = new TextEncoder('ISO-8859-1');
+  var solstring = sols.map(function(sol, i) {
+    return i + ':' + sol;
+  }).join(';') + ';';
+  var rtbl = enc.encode(solstring);
+  // dict string format is k1:v1;k2:v2;...;kn:vn;
   console.log('rebus', sols, table);
   if (sols.length) {
-    return concat([Extension('GRBS', rbs), Extension('RTBL', rtbl)]);
+    return concat([Extension('GRBS', grbs), Extension('RTBL', rtbl)]);
   }
 }
 
@@ -223,7 +237,7 @@ var format = [
 
   // ===== Strings
   //
-  // Starts at offset 52 + 2 * SIZE, encoded in ISO-8859-1
+  // Starts at offset 52 + 2 * SIZE,
   // Each string ends with a NUL byte
 
   Title,
@@ -233,7 +247,7 @@ var format = [
   Notes,
 
   // ===== Extra Sections
-  Rebus,
+  Rebus, 
   Circles,
 ];
 
