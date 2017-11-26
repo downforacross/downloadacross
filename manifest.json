@@ -1,7 +1,7 @@
 {
-  "name": "Puz Downloader",
-  "description": "Convert crosswords to puz files",
-  "version": "2.0",
+  "name": "Download a Cross",
+  "description": "Browse crossword puzzles from the archives of all major crossword publishers",
+  "version": "0.1.0",
   "permissions": [
     "storage",
     "activeTab",
@@ -11,8 +11,8 @@
     "http://crosswordfiend.com/*"
   ],
   "browser_action": {
-    "default_title": "Download Puzzle",
+    "default_title": "Download a Cross",
     "default_popup": "popup.html"
   },
-  "manifest_version": 3
+  "manifest_version": 2
 }

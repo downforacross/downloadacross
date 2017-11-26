@@ -152,7 +152,6 @@ function Extension(code, bytes) {
   var checksum = new Uint8Array(2); // TODO implement this stuff
   var header = concat([codeBytes, lengthBytes, checksum]);
   var result = concat([header, bytes]);
-  console.log('Extension(', code, bytes.length, ')', header);
   return result;
 }
 
@@ -183,7 +182,6 @@ function Rebus(puzzle) {
   }).join(';') + ';';
   var rtbl = enc.encode(solstring);
   // dict string format is k1:v1;k2:v2;...;kn:vn;
-  console.log('rebus', sols, table);
   if (sols.length) {
     return concat([Extension('GRBS', grbs), Extension('RTBL', rtbl)]);
   }
@@ -193,16 +191,13 @@ function Circles(puzzle) {
   var circles = puzzle.circles || [];
   var shades = puzzle.shades || [];
   if (circles.length + shades.length > 0) {
-    console.log('Circles', shades);
     var markup = new Uint8Array(puzzle.grid.length * puzzle.grid[0].length);
     circles.forEach(function(i) {
       markup[i] = markup[i] | 128;
     });
     shades.forEach(function(i) {
-      console.log('shading', i);
       markup[i] = markup[i] | 8;
     });
-    console.log(markup);
     return Extension('GEXT', markup);
   }
 }
@@ -247,7 +242,7 @@ var format = [
   Notes,
 
   // ===== Extra Sections
-  Rebus, 
+  Rebus,
   Circles,
 ];
 
