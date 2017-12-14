@@ -26,13 +26,20 @@ function parseXML(doc, date) {
   var copyright = get('copyright');
   var description = get('description');
 
+  var rows = parseInt(xmlDoc.querySelector('grid').getAttribute('width'));
+  debugger;
   var grid = [];
+  var circles = [];
   xmlDoc.querySelectorAll('cell').forEach(function(cell) {
     var answer = cell.getAttribute('solution') || '.';
     var i = parseInt(cell.getAttribute('y')) - 1;
     var j = parseInt(cell.getAttribute('x')) - 1;
     if (!grid[i]) grid[i] = [];
     grid[i][j] = answer;
+    var idx = i * rows + j;
+    if (cell.getAttribute('background-shape') === 'circle') {
+      circles.push(idx);
+    }
   });
 
   var filename = 'lat' + date.str + date.dayOfWeekStr + '.puz';
@@ -53,11 +60,12 @@ function parseXML(doc, date) {
     down: convertClues(downEl),
   };
 
+
   return {
     meta: meta,
     grid: grid,
     clues: clues,
-    circles: [],
+    circles: circles,
     filename: filename,
   }
 }
