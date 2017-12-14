@@ -156,6 +156,7 @@ function update() {
         }
       }
       puzzles[hash] = _puzzle;
+      console.log('grabbed', source, _puzzle);
       render();
     });
   }
