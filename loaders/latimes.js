@@ -27,7 +27,6 @@ function parseXML(doc, date) {
   var description = get('description');
 
   var rows = parseInt(xmlDoc.querySelector('grid').getAttribute('width'));
-  debugger;
   var grid = [];
   var circles = [];
   xmlDoc.querySelectorAll('cell').forEach(function(cell) {
