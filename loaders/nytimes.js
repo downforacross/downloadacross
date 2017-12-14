@@ -11,7 +11,7 @@ var unpackJSON = function(packed) {
 };
 
 // convert from NYT's raw gamePageData object to standard puzzle format
-var convertRawNYT = function(raw, date) {
+var convertRawNYT = function(raw, date, isMini) {
   console.log(raw);
   var dim = raw.dimensions,
     rows = dim.rowCount,
@@ -37,7 +37,7 @@ var convertRawNYT = function(raw, date) {
     }
   }
 
-  var title = 'NY Times ' + date.date.toLocaleDateString("en-US", { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', timeZone: "UTC" });
+  var title = (isMini ? 'NY Times Mini ' : 'NY Times ') + date.date.toLocaleDateString("en-US", { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', timeZone: "UTC" });
   if (raw.meta.title) {
     title += ' ' + raw.meta.title;
   }
@@ -69,7 +69,7 @@ var convertRawNYT = function(raw, date) {
     down: getClues(raw.clues, 'Down'),
   };
 
-  var filename = 'nyt' + date.str + date.dayOfWeekStr + '.puz';
+  var filename = (isMini ? 'nytmini' : 'nyt') + date.str + date.dayOfWeekStr + '.puz';
 
   return {
     meta: meta,
@@ -79,23 +79,6 @@ var convertRawNYT = function(raw, date) {
     shades: shades,
     filename: filename,
   };
-}
-
-var getNYTPuzzle = function() {
-  // hack to get "window.pluribus", which is an encoding of all the puzzle data, from the page
-  var oldTitle = document.title;
-  injectScript(`
-    document.title = window.pluribus
-  `, 'body');
-  var pluribus = document.title;
-  document.title = oldTitle;
-
-  if (pluribus !== 'undefined') {
-    var state = unpackJSON(pluribus);
-    var raw = state.gamePageData;
-    return convertRawNYT(raw);
-  } else {
-  }
 }
 
 function extractNYTMagic(doc) {
@@ -131,9 +114,33 @@ function loadNYT(url, date, callback) {
   );
 }
 
+function loadNYTMini(url, date, callback) {
+  fetch(url,
+    function success(response) {
+      var pluribus = extractNYTMagic(response);
+      var state = unpackJSON(pluribus);
+      var raw = state.gamePageData;
+      if (!raw.meta.id) {
+        callback();
+      } else {
+        var puzzle = convertRawNYT(raw, date, true);
+        callback(puzzle);
+      }
+    },
+  );
+}
+
+
 var NYTimesLoader = {
   load: function(date, callback) {
     var url = `https://www.nytimes.com/crosswords/game/daily/${date.year}/${date.month}/${date.day}`;
     loadNYT(url, date, callback);
   },
+};
+
+var NYTimesMiniLoader = {
+  load: function(date, callback) {
+    var url = `https://www.nytimes.com/crosswords/game/mini/${date.year}/${date.month}/${date.day}`;
+    loadNYTMini(url, date, callback);
+  }
 };
