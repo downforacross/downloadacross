@@ -143,6 +143,10 @@ body {
   background-color: #666666;
 }
 
+.calendar--day.tagged.gone .tag {
+  display: none;
+}
+
 .calendar--day.errors {
   color: #CCCCCC;
 }
