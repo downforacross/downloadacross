@@ -121,7 +121,7 @@ function loadNYT(url, date, callback) {
         getCFRating(ratingUrl, function(rating) {
           if (rating) {
             puzzle.rating = rating;
-            var link = `http://crosswordfiend.com/${date.yesterday().strSlashes}/${date.strHyphens}/#nyt`;
+            var link = `http://crosswordfiend.com/${date.yesterday().strSlashes}/${date.strHyphens}/#ny`;
             puzzle.rating.link = link;
           }
           callback(puzzle);
