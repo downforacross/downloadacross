@@ -9,7 +9,7 @@ var loaders = {
   'WSJ': WSJLoader,
   'New York Times': NYTimesLoader,
   'NYT Mini': NYTimesMiniLoader,
-  "Jonesin' Puzzles": JzLoader,
+  "Jonesin'": JzLoader,
 };
 
 var allSources = Object.keys(loaders);
