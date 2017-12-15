@@ -4,14 +4,28 @@
 // ex url: http://herbach.dnsalias.com/Jonesin/jz160714.puz
 // calendar: https://www.fleetingimage.com/wij/xyzzy/16-jz.html
 
-function loadPuz(url, date, callback) {
+function loadPuz(url, callback) {
   fetchBinary(url, function(bytes) {
-    console.log('fetchBinary', bytes);
-    if (!bytes) callback();
+    if (!bytes) return callback();
     var puzzle = puz.decode(bytes);
+    callback(puzzle);
+  });
+}
+
+function loadJz(url, date, callback) {
+  loadPuz(url, function(puzzle) {
+    if (!puzzle) return callback();
     puzzle.filename = `jz${date.str}.puz`
     puzzle.meta.title = 'Jonesin: ' + puzzle.meta.title;
-    callback(puzzle);
+    var ratingUrl = `http://crosswordfiend.com/ratings_count_json.php?puzz=${date.strHyphens}-jn`;
+    getCFRating(ratingUrl, function(rating) {
+      if (rating) {
+        puzzle.rating = rating;
+        var link = `http://crosswordfiend.com/${date.yesterday().strSlashes}/${date.strHyphens}/#jn`;
+        puzzle.rating.link = link;
+      }
+      callback(puzzle);
+    });
   });
 }
 
@@ -26,6 +40,6 @@ var JzLoader = {
 
     var url = `http://herbach.dnsalias.com/Jonesin/jz${date.str}.puz`;
 
-    loadPuz(url, oldDate, callback);
+    loadJz(url, oldDate, callback);
   },
 };
