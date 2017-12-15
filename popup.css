@@ -256,7 +256,7 @@ body {
 }
 
 .sourcelist {
-  border-right: 1px solid black;
+  /* border-right: 1px solid black; */
 }
 
 .settings--title {
@@ -276,6 +276,7 @@ body {
 }
 
 .sourcelist--source {
+  padding: 5px;
   display: flex;
   user-select: none;
   background-color: #FCFCFC;

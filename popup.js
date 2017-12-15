@@ -33,7 +33,7 @@ var nonErrors;
 var sourceList = [];
 
 function renderSourceList() {
-  var sourceListEl = document.querySelector('.sourcelist');
+  var sourceListEl = document.querySelector('.sourcelist--sources');
   sourceListEl.innerHTML = '';
   allSources.forEach(function(source) {
     var el = document.createElement('div');
