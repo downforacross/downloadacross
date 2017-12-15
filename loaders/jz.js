@@ -18,6 +18,7 @@ function loadPuz(url, date, callback) {
 var JzLoader = {
   load: function(date, callback) {
     var threshold = new Date('February 1 2016');
+    var oldDate = date;
     if (date.date > threshold) { // add 2 for some reason
       var d = new Date(date.date.getTime() + 2 * 24 * 60 * 60 * 1000);
       date = makeDate(1900 + d.getYear(), d.getMonth() + 1, d.getDate());
@@ -25,6 +26,6 @@ var JzLoader = {
 
     var url = `http://herbach.dnsalias.com/Jonesin/jz${date.str}.puz`;
 
-    loadPuz(url, date, callback);
+    loadPuz(url, oldDate, callback);
   },
 };
