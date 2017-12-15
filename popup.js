@@ -5,10 +5,21 @@ var puzzle = null;
 
 var loaders = {
   'LA Times': LATimesLoader,
+  'USA Today': USATodayLoader,
   'WSJ': WSJLoader,
   'New York Times': NYTimesLoader,
-  'USA Today': USATodayLoader,
+  'NYT Mini': NYTimesMiniLoader,
 };
+
+var allSources = Object.keys(loaders);
+
+var defaultSources = [
+  'LA Times',
+  'USA Today',
+  'WSJ',
+  'New York Times',
+  // no nyt mini
+];
 
 var months = [ null, 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 var daysOfWeek = [ 'sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat' ];
@@ -18,6 +29,18 @@ var curhash = ''; // empty
 var puzzles = {};
 var tagged;
 var nonErrors;
+var sourceList = [];
+
+function renderSourceList() {
+  var sourceListEl = document.querySelector('.sourcelist');
+  sourceListEl.innerHTML = '';
+  allSources.forEach(function(source) {
+    var el = document.createElement('div');
+    var checked = sourceList.indexOf(source) !== -1 ? 'checked' : '';
+    sourceListEl.appendChild(el);
+    el.outerHTML = `<div class="sourcelist--source"><label><input type="checkbox" ${checked}/>${source}</label></div>`;
+  });
+}
 
 function selectDate(date) {
   if (date && date.month && date.year) {
@@ -28,11 +51,13 @@ function selectDate(date) {
   }
 }
 
+var selectedSource = selectedSource;
 function loadState(cbk) {
   chrome.storage.sync.get({
     tagged: {},
     nonErrors: {},
     source: {},
+    sourceList: defaultSources,
     date: {
       month: months[1 + new Date().getMonth()],
       year: new Date().getYear() + 1900,
@@ -42,8 +67,9 @@ function loadState(cbk) {
       console.log('loaded', items);
       tagged = items.tagged;
       nonErrors = items.nonErrors;
-      selectSource(items.source);
+      selectedSource = items.source;
       selectDate(items.date);
+      sourceList = items.sourceList;
     }
     cbk();
   });
@@ -54,7 +80,9 @@ function selectSource(source) {
   var sources = document.querySelectorAll('.source-select--item');
   sources.forEach(function(sourceEl) {
     if (sourceEl.textContent === source) {
-      document.querySelector('.source-select--item.selected').classList.remove('selected');
+      document.querySelectorAll('.source-select--item.selected').forEach(function(el) {
+        el.classList.remove('selected');
+      });
       sourceEl.classList.add('selected');
     }
   });
@@ -65,7 +93,8 @@ function saveState() {
   var saveObj = {
     tagged: tagged,
     nonErrors: nonErrors,
-    source: getSource(),
+    source: selectedSource,
+    sourceList: sourceList,
     date: {
       month: document.querySelector('.calendar--month').textContent,
       year: document.querySelector('.calendar--year').textContent,
@@ -73,10 +102,6 @@ function saveState() {
   };
   console.log('saving', saveObj);
   chrome.storage.sync.set(saveObj);
-}
-
-function getSource() {
-  return document.querySelector('.source-select--item.selected').textContent;
 }
 
 function pad(num, len, sep) {
@@ -127,7 +152,7 @@ function getHash(source, year, month, day) {
 }
 
 function update() {
-  var source = getSource();
+  var source = selectedSource;
   var loader = loaders[source];
   var date = getDate();
   if (!date) {
@@ -160,6 +185,19 @@ function update() {
       render();
     });
   }
+}
+
+function renderSourceSelect() {
+  var sourceSelect = document.querySelector('.source-select');
+  sourceSelect.innerHTML = '';
+  sourceList.forEach(function(source) {
+    var sourceEl = document.createElement('span');
+    var selected = selectedSource === source ? 'selected' : '';
+    sourceSelect.appendChild(sourceEl);
+    sourceEl.outerHTML = `
+      <span class="source-select--item ${selected}">${source}</span>
+    `;
+  });
 }
 
 function renderReview() {
@@ -207,7 +245,7 @@ function daysInMonth(month, year) {
 function renderCalendar() {
   var month = document.querySelector('.calendar--month').textContent;
   var year = document.querySelector('.calendar--year').textContent;
-  var source = getSource();
+  var source = selectedSource;
   month = months.indexOf(month);
   year = parseInt(year);
   var days = daysInMonth(month, year);
@@ -278,11 +316,20 @@ function render() {
   renderReview();
 }
 
+function renderSettings() {
+  renderSourceList();
+}
+
 function registerSourceClickEvents() {
   var sources = document.querySelectorAll('.source-select--item');
+  console.log('registering for', sources);
   sources.forEach(function(el) {
     el.onclick = function() {
-      document.querySelector('.source-select--item.selected').classList.remove('selected');
+      document.querySelectorAll('.source-select--item.selected').forEach(function(e) {
+        e.classList.remove('selected');
+      });
+      selectedSource = el.textContent;
+      console.log('clicked', el);
       el.classList.add('selected');
       update();
       saveState();
@@ -359,10 +406,46 @@ function registerDownloadClickEvent() {
   };
 }
 
+
+function registerSettingsButtonClickEvent() {
+  var btn = document.querySelector('.settings--button');
+  var body = document.querySelector('body');
+  btn.onclick = function() {
+    body.classList.toggle('settings-mode');
+  };
+}
+
+function updateSourceList() {
+  var newSourceList = [];
+  document.querySelectorAll('.sourcelist--source').forEach(function(source) {
+    if (source.querySelector('input').checked) {
+      newSourceList.push(source.textContent);
+    }
+  });
+  console.log('updateSourceList', sourceList, newSourceList);
+  sourceList = newSourceList;
+  saveState();
+  renderSourceSelect();
+  registerSourceClickEvents();
+}
+
+function registerSourceListClickEvents() {
+  document.querySelectorAll('.sourcelist--source').forEach(function(source) {
+    source.onclick = function() {
+      updateSourceList();
+    };
+  });
+}
+
 loadState(function() {
   render();
+  renderSourceSelect();
+  selectSource(selectedSource);
+  renderSettings();
   registerSourceClickEvents();
   registerCalendarArrowEvents();
   registerDayClickEvents();
   registerDownloadClickEvent();
+  registerSettingsButtonClickEvent();
+  registerSourceListClickEvents();
 });
