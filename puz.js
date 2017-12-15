@@ -1,3 +1,4 @@
+// === ENCODE ===
 function numToBytes(len, val) {
   val = val || 0;
   var result = new Uint8Array(len);
@@ -246,11 +247,198 @@ var format = [
   Circles,
 ];
 
+// === DECODE ===
+
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+
+function getExtension(bytes, code) {
+  console.log('getExtension', code);
+  console.log('=', code.charCodeAt(0), code.charCodeAt(1), code.charCodeAt(2), code.charCodeAt(3));
+  // struct byte format is 4S H H
+  var i = 0,
+      j = 0;
+  for (i = 0; i < bytes.length; i += 1) {
+    if (j === code.length) break;
+    if (bytes[i] === code.charCodeAt(j)) {
+      j += 1;
+    } else {
+      j = 0;
+    }
+  }
+  if (j === code.length) {
+    // we found the code
+    var length = bytes[i] * 256 + bytes[i + 1];
+    i += 4; // skip the H H
+    return Array.from(bytes).slice(i, i + length);
+  }
+  return null; // could not find
+}
+
+function getRebus(bytes) {
+  var grbs = 'GRBS';
+  var rtbl = 'RTBL';
+
+  var table = getExtension(bytes, grbs);
+  if (!table) {
+    return; // no rebus
+  }
+  var solbytes = getExtension(bytes, rtbl);
+  var enc = new TextDecoder('ISO-8859-1');
+  var solstring = enc.decode(new Uint8Array(solbytes));
+  if (!solstring) {
+    return;
+  }
+  var sols = {};
+  solstring.split(';').forEach(function (s) {
+    var tokens = s.split(':');
+    if (tokens.length === 2) {
+      var _tokens = _slicedToArray(tokens, 2),
+          key = _tokens[0],
+          val = _tokens[1];
+
+      sols[parseInt(key.trim(), 10)] = val;
+    }
+  });
+  // dict string format is k1:v1;k2:v2;...;kn:vn;
+
+  return { table: table, sols: sols };
+}
+
+function getCircles(bytes) {
+  var circles = [];
+  var gext = 'GEXT';
+  var markups = getExtension(bytes, gext);
+  if (markups) {
+    markups.forEach(function (byte, i) {
+      if (byte & 128) {
+        console.log(byte, i);
+        circles.push(i);
+      }
+    });
+  }
+  return circles;
+}
+
+function getShades(bytes) {
+  var shades = [];
+  var gext = 'GEXT';
+  var markups = getExtension(bytes, gext);
+  if (markups) {
+    markups.forEach(function (byte, i) {
+      if (byte & 8) {
+        shades.push(i);
+      }
+    });
+  }
+  console.log('shades', shades);
+  return shades;
+}
+
+function addRebusToGrid(grid, rebus) {
+  return grid.map(function (row, i) {
+    return row.map(function (cell, j) {
+      var idx = i * row.length + j;
+      if (rebus.table[idx]) {
+        return _extends({}, cell, {
+          solution: rebus.sols[rebus.table[idx] - 1]
+        });
+      }
+      return cell;
+    });
+  });
+}
+
+function PUZtoJSON(buffer) {
+  var grid = [];
+  var info = {};
+  var across = [];
+  var down = [];
+  var bytes = new Uint8Array(buffer);
+
+  var ncol = bytes[44];
+  var nrow = bytes[45];
+  if (!(bytes[50] === 0 && bytes[51] === 0)) {
+    throw new Error('Scrambled PUZ file');
+  }
+
+  for (var i = 0; i < nrow; i++) {
+    grid[i] = [];
+
+    for (var j = 0; j < ncol; j++) {
+      var letter = String.fromCharCode(bytes[52 + i * ncol + j]);
+      grid[i][j] = letter;
+    }
+  }
+
+  function isBlack(i, j) {
+    return i < 0 || j < 0 || i >= nrow || j >= ncol || grid[i][j] === '.';
+  }
+
+  var isAcross = [];
+  var isDown = [];
+  var n = 0;
+  for (var _i = 0; _i < nrow; _i++) {
+    for (var _j = 0; _j < ncol; _j++) {
+      if (grid[_i][_j] !== '.') {
+        var isAcrossStart = isBlack(_i, _j - 1) && !isBlack(_i, _j + 1);
+        var isDownStart = isBlack(_i - 1, _j) && !isBlack(_i + 1, _j);
+
+        if (isAcrossStart || isDownStart) {
+          n += 1;
+          isAcross[n] = isAcrossStart;
+          isDown[n] = isDownStart;
+        }
+      }
+    }
+  }
+
+  var ibyte = 52 + ncol * nrow * 2;
+  function readString() {
+    var result = "";
+    var b = bytes[ibyte++];
+    while (b !== 0) {
+      result += String.fromCharCode(b);
+      b = bytes[ibyte++];
+    }
+    return result;
+  }
+
+  info.title = readString();
+  info.author = readString();
+  info.copyright = readString();
+
+  for (var _i2 = 1; _i2 <= n; _i2++) {
+    if (isAcross[_i2]) {
+      across[_i2] = readString();
+    }
+    if (isDown[_i2]) {
+      down[_i2] = readString();
+    }
+  }
+
+  info.description = readString();
+
+  var rebus = getRebus(bytes);
+  var circles = getCircles(bytes);
+  var shades = getShades(bytes);
+  if (rebus) {
+    grid = addRebusToGrid(grid, rebus);
+  }
+
+  return { grid: grid, meta: info, circles: circles, shades: shades, clues: { across: across, down: down } };
+};
+
 var puz = {
   // returns a Uint8Array containing the bytes in .puz format
   encode: function(puzzle) {
     return concat(format.map(function(fn) {
       return fn(puzzle) || new Uint8Array(0);
     }));
+  },
+  decode: function(bytes) {
+    return PUZtoJSON(bytes);
   },
 }
