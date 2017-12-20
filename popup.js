@@ -10,7 +10,8 @@ var loaders = {
   'New York Times': NYTimesLoader,
   'NYT Mini': NYTimesMiniLoader,
   "Jonesin'": JzLoader,
-  "Arkadium Mini": ArkadiumMiniLoader,
+  'Arkadium Mini': ArkadiumMiniLoader,
+  'BEQ': BEQLoader,
 };
 
 var allSources = Object.keys(loaders);
