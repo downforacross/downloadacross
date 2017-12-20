@@ -4,14 +4,8 @@
 // example crossword page: 
 // example puzzle page: https://blogs.wsj.com/puzzle/2017/11/21/
 // example raw data url: https://blogs.wsj.com/puzzle/crossword/20171122/28895/data.json
-var unpackJSON = function(packed) {
-  var unescaped = unescape(packed);
-  var decompressed = LZString.decompress(unescaped);
-  var unpacked = JSON.parse(decompressed);
-  return unpacked;
-};
 
-// convert from NYT's raw gamePageData object to standard puzzle format
+// convert from WSJ's raw gamePageData object to standard puzzle format
 var convertRawWSJ = function(raw, date) {
   console.log(raw);
   var data = raw.data;
