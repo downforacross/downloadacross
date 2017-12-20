@@ -82,7 +82,11 @@ window.parseCCXML = function parseCCXML(doc) {
 window.loadPuz = function loadPuz(url, callback) {
   fetchBinary(url, function(bytes) {
     if (!bytes) return callback();
-    var puzzle = puz.decode(bytes);
-    callback(puzzle);
+    try {
+      var puzzle = puz.decode(bytes);
+      callback(puzzle);
+    } catch(e) {
+      callback();
+    }
   });
 }
