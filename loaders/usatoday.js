@@ -2,6 +2,8 @@
 // extracts puzzle by parsing xml file hosted on "picayune.uclick.com"
 // example data url: http://picayune.uclick.com/comics/usaon/data/usaon171111-data.xml
 // valid from 2004/05/03 -- but with a few holes
+(function(){
+
 function convertClues(cluesEl) {
   var result = [];
   for (var el of cluesEl.children) {
@@ -73,9 +75,10 @@ function loadUSAToday(url, date, callback) {
   );
 }
 
-var USATodayLoader = {
+window.USATodayLoader = {
   load: function(date, callback) {
     var url = `https://picayune.uclick.com/comics/usaon/data/usaon${date.str}-data.xml`;
     loadUSAToday(url, date, callback);
   },
 };
+}());
