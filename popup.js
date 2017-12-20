@@ -9,9 +9,14 @@ var loaders = {
   'WSJ': WSJLoader,
   'New York Times': NYTimesLoader,
   'NYT Mini': NYTimesMiniLoader,
-  "Jonesin'": JzLoader,
   'Arkadium Mini': ArkadiumMiniLoader,
+  "Jonesin'": JzLoader,
   'BEQ': BEQLoader,
+};
+
+var descriptions = {
+  "Jonesin'": `Tuesdays`,
+  'BEQ': ` Mondays and Thursdays`,
 };
 
 var allSources = Object.keys(loaders);
@@ -40,8 +45,12 @@ function renderSourceList() {
   allSources.forEach(function(source) {
     var el = document.createElement('div');
     var checked = sourceList.indexOf(source) !== -1 ? 'checked' : '';
+    var label = source;
+    if (descriptions[source]) {
+      label = `${source} | <i>${descriptions[source]}</i>`
+    }
     sourceListEl.appendChild(el);
-    el.outerHTML = `<div class="sourcelist--source"><label><input type="checkbox" ${checked}/>${source}</label></div>`;
+    el.outerHTML = `<div class="sourcelist--source"><label><input type="checkbox" ${checked}/>${label}</label></div>`;
   });
 }
 
@@ -420,9 +429,15 @@ function registerSettingsButtonClickEvent() {
 
 function updateSourceList() {
   var newSourceList = [];
-  document.querySelectorAll('.sourcelist--source').forEach(function(source) {
-    if (source.querySelector('input').checked) {
-      newSourceList.push(source.textContent);
+  document.querySelectorAll('.sourcelist--source').forEach(function(sourceEl) {
+    if (sourceEl.querySelector('input').checked) {
+      var source = sourceEl.textContent;
+      if (source.indexOf(' |') !== -1) {
+        source = source.substring(0,
+          source.indexOf(' |')
+        );
+      }
+      newSourceList.push(source);
     }
   });
   console.log('updateSourceList', sourceList, newSourceList);
