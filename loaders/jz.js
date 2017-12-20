@@ -4,14 +4,6 @@
 // ex url: http://herbach.dnsalias.com/Jonesin/jz160714.puz
 // calendar: https://www.fleetingimage.com/wij/xyzzy/16-jz.html
 
-function loadPuz(url, callback) {
-  fetchBinary(url, function(bytes) {
-    if (!bytes) return callback();
-    var puzzle = puz.decode(bytes);
-    callback(puzzle);
-  });
-}
-
 function loadJz(url, date, callback) {
   loadPuz(url, function(puzzle) {
     if (!puzzle) return callback();
