@@ -8,7 +8,7 @@ function loadJz(url, date, callback) {
   loadPuz(url, function(puzzle) {
     if (!puzzle) return callback();
     puzzle.filename = `jz${date.str}.puz`
-    puzzle.meta.title = 'Jonesin: ' + puzzle.meta.title;
+    puzzle.meta.title = `Jonesin ${date.date.toLocaleDateString("en-US", { year: 'numeric', month: 'short', day: 'numeric', timeZone: "UTC" })}: ${puzzle.meta.title}`;
     var ratingUrl = `http://crosswordfiend.com/ratings_count_json.php?puzz=${date.strHyphens}-jn`;
     getCFRating(ratingUrl, function(rating) {
       if (rating) {
