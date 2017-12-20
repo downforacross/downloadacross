@@ -10,7 +10,8 @@
     "https://blogs.wsj.com/*",
     "http://crosswordfiend.com/*",
     "http://herbach.dnsalias.com/*",
-    "http://www.brendanemmettquigley.com/*"
+    "http://www.brendanemmettquigley.com/*",
+    "http://www.chronicle.com/*"
   ],
   "browser_action": {
     "default_title": "Download a Cross",

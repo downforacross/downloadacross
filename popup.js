@@ -12,11 +12,13 @@ var loaders = {
   'Arkadium Mini': ArkadiumMiniLoader,
   "Jonesin'": JzLoader,
   'BEQ': BEQLoader,
+  'CHE': CHELoader,
 };
 
 var descriptions = {
   "Jonesin'": `Tuesdays`,
-  'BEQ': ` Mondays and Thursdays`,
+  'BEQ': `Mondays and Thursdays`,
+  'CHE': `Fridays`,
 };
 
 var allSources = Object.keys(loaders);
@@ -133,6 +135,7 @@ function makeDate(year, month, day) {
     year: year,
     date: date,
     str: (parseInt(day) + parseInt(month) * 100 + (parseInt(year) % 100) * 10000) + '',
+    str8: (parseInt(day) + parseInt(month) * 100 + (parseInt(year)) * 10000) + '',
     dayOfWeek: date.getDay(),
     dayOfWeekStr: daysOfWeek[date.getDay()],
     strSlashes: pad(year, 4) + '/' + pad(month, 2) + '/' + pad(day, 2),
