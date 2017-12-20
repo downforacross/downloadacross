@@ -155,20 +155,20 @@ body {
 
 
 .preview--wrapper {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.preview {
   padding: 20px;
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
+.preview {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
 .title {
-  width: max-content;
+  text-align: center;
   font-size: 12px;
   font-weight: bold;
 }
