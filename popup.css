@@ -12,6 +12,7 @@ body {
 .source-select {
   display: flex;
   flex-direction: row;
+  flex-wrap: wrap;
   justify-content: space-between;
   border-bottom: 1px solid black;
   padding: 10px;
@@ -29,6 +30,7 @@ body {
 
 .source-select--item {
   cursor: pointer;
+  padding: 2px;
 }
 
 .archive {
@@ -256,7 +258,6 @@ body {
 }
 
 .sourcelist {
-  /* border-right: 1px solid black; */
 }
 
 .settings--title {
@@ -270,12 +271,15 @@ body {
 }
 
 .sourcelist--sources {
+  height: 200px;
   font-size: 14px;
   display: flex;
   flex-direction: column;
+  flex-wrap: wrap;
 }
 
 .sourcelist--source {
+  width: 225px;
   padding: 5px;
   display: flex;
   user-select: none;
