@@ -270,7 +270,7 @@ function renderCalendar() {
   var weekEls = document.querySelectorAll('.calendar--week');
   if (weekEls.length === 0) {
     var calendarEl = document.querySelector('.calendar');
-    for (var row = 0; row < 5; row += 1) {
+    for (var row = 0; row < 6; row += 1) {
       var weekEl = document.createElement('div');
       weekEl.classList.add('calendar--week');
       calendarEl.appendChild(weekEl);
@@ -288,7 +288,7 @@ function renderCalendar() {
     weekEls = document.querySelectorAll('.calendar--week');
   }
   var selected = document.querySelector('.selected');
-  for (var row = 0; row < 5; row += 1) {
+  for (var row = 0; row < 6; row += 1) {
     for (var col = 0; col < 7; col += 1) {
       var el = weekEls[row].children[col];
       var text = el.children[0];
