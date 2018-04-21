@@ -5,6 +5,7 @@
   "permissions": [
     "storage",
     "activeTab",
+    "downloads",
     "https://picayune.uclick.com/*",
     "https://www.nytimes.com/*",
     "https://blogs.wsj.com/*",

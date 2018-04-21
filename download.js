@@ -9,11 +9,14 @@ var makeAndClickDownloadURL = function(data, fileName) {
   a.remove();
 };
 
-var downloadBlob = function(data, fileName) {
+var downloadBlob = function(data, filename) {
   var blob, url;
   blob = new Blob([data]);
   url = window.URL.createObjectURL(blob);
-  makeAndClickDownloadURL(url, fileName);
+  chrome.downloads.download({
+    url,
+    filename,
+  })
   setTimeout(function() {
     return window.URL.revokeObjectURL(url);
   }, 1000);
