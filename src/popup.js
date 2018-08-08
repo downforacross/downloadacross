@@ -412,7 +412,7 @@ function registerDownloadClickEvent() {
     var puzzle = puzzles[curhash];
     if (puzzle && !puzzle.error) {
       console.log('downloading to ', puzzle.filename);
-      downloadBlob(puz.encode(puzzle), puzzle.filename);
+      downloadBlob(Puz.encode(puzzle), puzzle.filename);
       if (tagged) {
         tagged[curhash] = true;
       }
