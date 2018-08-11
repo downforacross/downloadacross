@@ -14,6 +14,16 @@ var convertRawWSJ = function(raw, date) {
       return cell.Letter || '.';
     });
   });
+  var cols = data.grid[0].length;
+  var circles = [];
+  data.grid.forEach(function(row, i) {
+    row.forEach(function(cell, j) {
+      if (cell.style && cell.style.shapebg === 'circle') {
+        circles.push(i * cols + j);
+      }
+    });
+  });
+
   var rows = grid[0].length,
     cols = grid.length;
 
@@ -49,7 +59,7 @@ var convertRawWSJ = function(raw, date) {
     meta: meta,
     grid: grid,
     clues: clues,
-    circles: [],
+    circles: circles,
     filename: filename,
   };
 }
