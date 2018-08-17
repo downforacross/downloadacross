@@ -83,7 +83,7 @@ window.loadPuz = function loadPuz(url, callback) {
   fetchBinary(url, function(bytes) {
     if (!bytes) return callback();
     try {
-      var puzzle = puz.decode(bytes);
+      var puzzle = Puz.decode(bytes);
       callback(puzzle);
     } catch(e) {
       callback();
