@@ -89,58 +89,63 @@ function extractNYTMagic(doc) {
   return pluribus;
 }
 
-function loadNYT(url, date, callback) {
-  fetch(url,
-    function success(response) {
+function loadNYT(url, date) {
+  return load(url)
+    .then(function(response) {
       var pluribus = extractNYTMagic(response);
       var state = unpackJSON(pluribus);
       var raw = state.gamePageData;
       if (!raw.meta.id) {
-        callback();
-      } else {
-        var puzzle = convertRawNYT(raw, date);
+        throw new Error('Malformed meta field');
+      }
+      var puzzle = convertRawNYT(raw, date);
 
-        var ratingUrl = `http://crosswordfiend.com/ratings_count_json.php?puzz=${date.strHyphens}-ny`;
-        getCFRating(ratingUrl, function(rating) {
+      var ratingUrl = `http://crosswordfiend.com/ratings_count_json.php?puzz=${date.strHyphens}-ny`;
+      return getCFRating(ratingUrl)
+        .then(function(rating) {
           if (rating) {
             puzzle.rating = rating;
             var link = `http://crosswordfiend.com/${date.yesterday().strSlashes}/${date.strHyphens}/#ny`;
             puzzle.rating.link = link;
           }
-          callback(puzzle);
+          return puzzle;
         });
-      }
-    },
-  );
+    });
 }
 
-function loadNYTMini(url, date, callback) {
-  fetch(url,
-    function success(response) {
+function loadNYTMini(url, date) {
+  return load(url)
+    .then(function(response) {
       var pluribus = extractNYTMagic(response);
       var state = unpackJSON(pluribus);
       var raw = state.gamePageData;
       if (!raw.meta.id) {
-        callback();
-      } else {
-        var puzzle = convertRawNYT(raw, date, true);
-        callback(puzzle);
+        throw new Error('Malformed meta field');
       }
-    },
-  );
+      var puzzle = convertRawNYT(raw, date, true);
+      return puzzle;
+    });
 }
 
 
 var NYTimesLoader = {
-  load: function(date, callback) {
+  load: function(date) {
     var url = `https://www.nytimes.com/crosswords/game/daily/${date.year}/${date.month}/${date.day}`;
-    loadNYT(url, date, callback);
+    return loadNYT(url, date);
   },
+  origins: [
+    'http://www.nytimes.com/*',
+    'https://www.nytimes.com/*',
+  ],
 };
 
 var NYTimesMiniLoader = {
-  load: function(date, callback) {
+  load: function(date) {
     var url = `https://www.nytimes.com/crosswords/game/mini/${date.year}/${date.month}/${date.day}`;
-    loadNYTMini(url, date, callback);
-  }
+    return loadNYTMini(url, date);
+  },
+  origins: [
+    'http://www.nytimes.com/*',
+    'https://www.nytimes.com/*',
+  ],
 };

@@ -5,7 +5,9 @@ function getCFRating(url) {
     .then(function(response) {
       var obj = JSON.parse(response);
       return obj;
-  });
+    }).catch(function() {
+      return null;
+    });
 }
 
 // crossword compiler format

@@ -63,22 +63,24 @@ function parseXML(doc, date) {
   }
 }
 
-function loadUSAToday(url, date, callback) {
-  fetch(url,
-    function success(response) {
+function loadUSAToday(url, date) {
+  return load(url)
+    .then(function(response) {
       if (response.indexOf('Not Found') !== -1) {
-        callback();
-      } else {
-        callback(parseXML(response, date));
+        throw new Error('file does not exist')
       }
-    },
-  );
+      return parseXML(response, date);
+    });
 }
 
 window.USATodayLoader = {
-  load: function(date, callback) {
+  load: function(date) {
     var url = `https://picayune.uclick.com/comics/usaon/data/usaon${date.str}-data.xml`;
-    loadUSAToday(url, date, callback);
+    return loadUSAToday(url, date);
   },
+  origins: [
+    'http://picayune.uclick.com/',
+    'https://picayune.uclick.com/',
+  ],
 };
 }());
