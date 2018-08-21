@@ -46,5 +46,8 @@ window.BEQLoader = {
         return loadBEQ(url, date);
       });
   },
+  origins: [
+    'http://www.brendanemmettquigley.com/*'
+  ],
 };
 }());

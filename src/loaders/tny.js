@@ -1,6 +1,6 @@
 // loader for the New Yorker crossword puzzles
 // extracts the puzzle data from the html page directly by decompressing a "window.rawc" magic-string
-// valid for ???
+// valid for 4/30/2018-present
 // example url: https://cdn3.amuselabs.com/tny/crossword?id=e5f74624&set=tny-weekly
 
 // convert from TNY's raw rawc object to standard puzzle format

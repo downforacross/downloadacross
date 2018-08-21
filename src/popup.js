@@ -17,9 +17,10 @@ var loaders = {
 };
 
 var descriptions = {
-  "Jonesin'": `Tuesdays`,
-  'BEQ': `Mondays and Thursdays`,
-  'CHE': `Fridays`,
+  "Jonesin'": 'Tuesdays',
+  'BEQ': 'Mondays and Thursdays',
+  'CHE': 'Fridays (usually)',
+  'TNY': 'Mondays',
 };
 
 var allSources = Object.keys(loaders);
