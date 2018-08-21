@@ -81,14 +81,11 @@ window.parseCCXML = function parseCCXML(doc) {
   }
 }
 
-window.loadPuz = function loadPuz(url, callback) {
-  fetchBinary(url, function(bytes) {
-    if (!bytes) return callback();
-    try {
+window.loadPuz = function loadPuz(url) {
+  return loadBinary(url)
+    .then(function(bytes) {
+      if (!bytes) throw new Error('could not download puz');
       var puzzle = Puz.decode(bytes);
-      callback(puzzle);
-    } catch(e) {
-      callback();
-    }
-  });
+      return puzzle;
+    });
 }

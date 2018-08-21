@@ -4,25 +4,26 @@
 // ex url: http://herbach.dnsalias.com/Jonesin/jz160714.puz
 // calendar: https://www.fleetingimage.com/wij/xyzzy/16-jz.html
 
-function loadJz(url, date, callback) {
-  loadPuz(url, function(puzzle) {
-    if (!puzzle) return callback();
-    puzzle.filename = `jz${date.str}.puz`
-    puzzle.meta.title = `Jonesin ${date.date.toLocaleDateString("en-US", { year: 'numeric', month: 'short', day: 'numeric', timeZone: "UTC" })}: ${puzzle.meta.title}`;
-    var ratingUrl = `http://crosswordfiend.com/ratings_count_json.php?puzz=${date.strHyphens}-jn`;
-    getCFRating(ratingUrl, function(rating) {
-      if (rating) {
-        puzzle.rating = rating;
-        var link = `http://crosswordfiend.com/${date.yesterday().strSlashes}/${date.strHyphens}/#jn`;
-        puzzle.rating.link = link;
-      }
-      callback(puzzle);
+function loadJz(url, date) {
+  return loadPuz(url)
+    .then(function(puzzle) {
+      puzzle.filename = `jz${date.str}.puz`
+      puzzle.meta.title = `Jonesin ${date.date.toLocaleDateString("en-US", { year: 'numeric', month: 'short', day: 'numeric', timeZone: "UTC" })}: ${puzzle.meta.title}`;
+      var ratingUrl = `http://crosswordfiend.com/ratings_count_json.php?puzz=${date.strHyphens}-jn`;
+      return getCFRating(ratingUrl)
+        .then(function(rating) {
+          if (rating) {
+            puzzle.rating = rating;
+            var link = `http://crosswordfiend.com/${date.yesterday().strSlashes}/${date.strHyphens}/#jn`;
+            puzzle.rating.link = link;
+          }
+          return puzzle;
+        });
     });
-  });
 }
 
 var JzLoader = {
-  load: function(date, callback) {
+  load: function(date) {
     var threshold = new Date('February 1 2016');
     var oldDate = date;
     if (date.date > threshold) { // add 2 for some reason
@@ -32,6 +33,6 @@ var JzLoader = {
 
     var url = `http://herbach.dnsalias.com/Jonesin/jz${date.str}.puz`;
 
-    loadJz(url, oldDate, callback);
+    return loadJz(url, oldDate);
   },
 };
