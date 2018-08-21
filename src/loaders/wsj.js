@@ -99,90 +99,89 @@ function extractWSJPuzzleID(doc) {
   return result;
 }
 
-function getWSJDailyLink(date, callback) {
+function getWSJDailyLink(date) {
   var url1 = `https://blogs.wsj.com/puzzle/${date.strSlashes}/`;
   var url2 = `https://blogs.wsj.com/puzzle/${date.yesterday().strSlashes}/`;
-  console.log(url1);
-  fetch(url2,
-    function success(responseYDay) {
+  return load(url2)
+    .then(function(responseYDay) {
+      console.log('got responseYDay');
       var puzzleURLs = (responseYDay && extractWSJPuzzleURLs(responseYDay, url2)) || [];
       if (puzzleURLs.length === 1) {
         // wed, fri, sat
-        callback(puzzleURLs[0]);
+        return puzzleURLs[0];
       } else if (puzzleURLs.length >= 2) {
         // tuesday?
         console.log(puzzleURLs);
-        callback(puzzleURLs[0]);
+        return puzzleURLs[0];
       } else {
-        fetch(url1,
-          function success2(responseToday) {
-            if (!responseToday) return callback();
-            var puzzleURLs2 = extractWSJPuzzleURLs(responseToday, url1);
-            if (puzzleURLs2.length >= 1) {
-              // monday
-              if (puzzleURLs2.length >= 2) {
-                var mondays = puzzleURLs2.filter(function(url) {
-                  return url.indexOf('monday') !== -1;
-                });
-                callback(mondays[0]);
-              } else {
-                callback(puzzleURLs[0]);
-              }
-            } else callback();
-          }
-        );
+        throw new Error();
       }
-    },
-  );
+    }).catch(function() {
+      return load(url1)
+        .then(function(responseToday) {
+          if (!responseToday) throw new Error('empty response')
+          var puzzleURLs2 = extractWSJPuzzleURLs(responseToday, url1);
+          if (puzzleURLs2.length >= 1) {
+            // monday
+            if (puzzleURLs2.length >= 2) {
+              var mondays = puzzleURLs2.filter(function(url) {
+                return url.indexOf('monday') !== -1;
+              });
+              return mondays[0];
+            } else {
+              return puzzleURLs[0];
+            }
+          }
+        });
+    });
 }
 
-function getWSJURL(date, callback) {
-  getWSJDailyLink(date, function(puzzleURL) {
-    if (puzzleURL) {
-      fetch(puzzleURL, function success2(response2) {
-        var puzzleId = extractWSJPuzzleID(response2);
-        if (puzzleId) {
-          var dataURL = `https://blogs.wsj.com/puzzle/crossword/${puzzleId}/data.json`;
-          callback(dataURL);
-        } else callback();
-      });
-    } else {
-      callback();
-    }
-  });
+function getWSJURL(date) {
+  return getWSJDailyLink(date)
+    .then(function(puzzleURL) {
+      console.log('found daily link', puzzleURL);
+      return load(puzzleURL)
+    }).then(function(body) {
+      var puzzleId = extractWSJPuzzleID(body);
+      var dataURL = `https://blogs.wsj.com/puzzle/crossword/${puzzleId}/data.json`;
+      return dataURL;
+    });
 }
 
-function loadWSJ(url, date, callback) {
-  fetch(url,
-    function success(response) {
-      var raw = JSON.parse(response);
+function loadWSJ(url, date) {
+  return load(url)
+    .then(function(body) {
+      var raw = JSON.parse(body);
       var puzzle = convertRawWSJ(raw, date);
       if (!puzzle) {
-        callback();
-      } else {
-        var ratingUrl = `http://crosswordfiend.com/ratings_count_json.php?puzz=${date.strHyphens}-wsj`;
-        getCFRating(ratingUrl, function(rating) {
-          if (rating) {
-            puzzle.rating = rating;
-            var link = `http://crosswordfiend.com/${date.yesterday().strSlashes}/${date.strHyphens}/#wsj`;
-            puzzle.rating.link = link;
-          }
-          callback(puzzle);
-        });
+        throw new Error('failed to load wsj');
       }
+      var ratingUrl = `http://crosswordfiend.com/ratings_count_json.php?puzz=${date.strHyphens}-wsj`;
+      return getCFRating(ratingUrl).then(function(rating) {
+        if (rating) {
+          puzzle.rating = rating;
+          var link = `http://crosswordfiend.com/${date.yesterday().strSlashes}/${date.strHyphens}/#wsj`;
+          puzzle.rating.link = link;
+        }
+        console.log('got CF rating', puzzle);
+        return puzzle;
+      });
     }
   );
 }
 
 var WSJLoader = {
-  load: function(date, callback) {
-    console.log(date);
-    getWSJURL(date, function(url) {
-      if (url) {
-        loadWSJ(url, date, callback);
-      } else {
-        callback();
-      }
-    });
+  load: function(date) {
+    return getWSJURL(date)
+      .then(function(url) {
+        console.log('wsj url:', url);
+        return loadWSJ(url, date);
+      });
   },
+  origins: [
+    'http://blogs.wsj.com/*',
+    'https://blogs.wsj.com/*',
+    'http://crosswordfiend.com/*',
+    'https://crosswordfiend.com/*',
+  ],
 };

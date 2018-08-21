@@ -1,10 +1,10 @@
 // crossword fiend api
-function getCFRating(url, callback) {
+function getCFRating(url) {
   // cb the crosswordfiend json
-  fetch(url, function(response) {
-    if (!response) return callback();
-    var obj = JSON.parse(response);
-    callback(obj);
+  return load(url)
+    .then(function(response) {
+      var obj = JSON.parse(response);
+      return obj;
   });
 }
 
