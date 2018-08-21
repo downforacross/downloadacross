@@ -106,24 +106,16 @@ function extractTNYEmbedUrl(doc) {
 
 
 function loadTNY(url, date) {
-  return fetch(url)
-    .then(function(response) {
-      if (!response.ok) throw new Error('failed to fetch');
-      return response.text();
-    }).then(function(body) {
+  return load(url)
+    .then(function(body) {
       var embedUrl = extractTNYEmbedUrl(body);
-      return fetch(embedUrl);
-    }).then(function(responseEmbed) {
-      if (!responseEmbed.ok) throw new Error('failed to fetch');
-      return responseEmbed.text();
+      return load(embedUrl);
     }).then(function(body) {
       var raw = extractTNYMagic(body);
-      console.log(raw);
       if (!raw.box) {
         throw new Error('incorrect format');
       }
       var puzzle = convertRawTNY(raw, date);
-      console.log(puzzle);
       return puzzle;
     });
 }
