@@ -13,6 +13,7 @@ var loaders = {
   "Jonesin'": JzLoader,
   'BEQ': BEQLoader,
   'CHE': CHELoader,
+  'TNY': TNYLoader,
 };
 
 var descriptions = {

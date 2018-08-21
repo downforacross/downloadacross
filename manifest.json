@@ -12,7 +12,8 @@
     "http://crosswordfiend.com/*",
     "http://herbach.dnsalias.com/*",
     "http://www.brendanemmettquigley.com/*",
-    "http://www.chronicle.com/*"
+    "http://www.chronicle.com/*",
+    "https://www.newyorker.com/*"
   ],
   "browser_action": {
     "default_title": "Download a Cross",
