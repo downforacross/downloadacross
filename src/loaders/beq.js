@@ -4,52 +4,47 @@
 (function(){
 
 
-function getBEQURL(date, callback) {
+function getBEQURL(date) {
   var url1 = `http://www.brendanemmettquigley.com/${date.strSlashes}/index.html`;
-  fetch(url1,
-    function success(response) {
+  return load(url1)
+    .then(function(response) {
       var end = response.indexOf('.puz') + 4;
-      if (end === -1) return callback();
+      if (end === -1) throw new Error('could not find beq puz');
       var begin = response.lastIndexOf('http:', end);
-      if (begin === -1) return callback();
+      if (begin === -1) throw new Error('could not find beq puz');
       var url = response.substring(begin, end);
-      callback(url);
+      return url;
     },
   );
 }
 
-function loadBEQ(url, date, callback) {
-  loadPuz(url, function(puzzle) {
-    if (!puzzle) {
-      callback();
-    } else {
+function loadBEQ(url, date) {
+  return loadPuz(url)
+    .then(function(puzzle) {
       var filename = 'beq' + date.str + date.dayOfWeekStr + '.puz';
       puzzle.filename = filename;
       var title = `BEQ ${date.date.toLocaleDateString("en-US", { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric', timeZone: "UTC" })}: ${puzzle.meta.title}`;
       puzzle.meta.title = title;
 
       var ratingUrl = `http://crosswordfiend.com/ratings_count_json.php?puzz=${date.strHyphens}-bq`;
-      getCFRating(ratingUrl, function(rating) {
-        if (rating) {
-          puzzle.rating = rating;
-          var link = `http://crosswordfiend.com/${date.yesterday().strSlashes}/${date.strHyphens}/#bq`;
-          puzzle.rating.link = link;
-        }
-        callback(puzzle);
-      });
-    }
-  });
+      return getCFRating(ratingUrl)
+        .then(function(rating) {
+          if (rating) {
+            puzzle.rating = rating;
+            var link = `http://crosswordfiend.com/${date.yesterday().strSlashes}/${date.strHyphens}/#bq`;
+            puzzle.rating.link = link;
+          }
+          return puzzle;
+        });
+    });
 }
 
 window.BEQLoader = {
-  load: function(date, callback) {
-    getBEQURL(date, function(url) {
-      if (url) {
-        loadBEQ(url, date, callback);
-      } else {
-        callback();
-      }
-    });
+  load: function(date) {
+    return getBEQURL(date)
+      .then(function(url) {
+        return loadBEQ(url, date);
+      });
   },
 };
 }());

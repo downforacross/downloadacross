@@ -6,7 +6,7 @@ function load(url) {
     });
 }
 
-function loadBinary(url, callback) {
+function loadBinary(url) {
   return fetch(url)
     .then(function(response) {
       if (!response.ok) throw new Error('failed to fetch');
