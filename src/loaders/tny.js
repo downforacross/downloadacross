@@ -36,7 +36,6 @@ function extractTNYMagic(doc) {
   var c = doc.indexOf("'", b + 1);
   var rawc = doc.substring(b + 1, c);
   console.log(doc.substring(a, a + 100));
-  debugger;
   console.log(rawc);
   console.log(UTF8ArrToStr(bda(rawc)));
   return JSON.parse(UTF8ArrToStr(bda(rawc)))
@@ -102,36 +101,43 @@ function extractTNYEmbedUrl(doc) {
   var i = doc.indexOf('<iframe id="crossword"');
   i = doc.indexOf('src=', i) + 5;
   var j = doc.indexOf('"', i);
-  debugger;
   return doc.substring(i, j);
 }
 
 
-function loadTNY(url, date, callback) {
-  fetch(url,
-    function success(response) {
-      var embedUrl = extractTNYEmbedUrl(response);
-      console.log(embedUrl);
-      fetch(embedUrl, function success2(responseEmbed) {
-        var raw = extractTNYMagic(responseEmbed);
-        console.log(raw);
-        if (!raw.box) {
-          callback();
-        } else {
-          var puzzle = convertRawTNY(raw, date);
-          console.log(puzzle);
-          callback(puzzle);
-        }
-      });
-    },
-  );
+function loadTNY(url, date) {
+  return fetch(url)
+    .then(function(response) {
+      if (!response.ok) throw new Error('failed to fetch');
+      return response.text();
+    }).then(function(body) {
+      var embedUrl = extractTNYEmbedUrl(body);
+      return fetch(embedUrl);
+    }).then(function(responseEmbed) {
+      if (!responseEmbed.ok) throw new Error('failed to fetch');
+      return responseEmbed.text();
+    }).then(function(body) {
+      var raw = extractTNYMagic(body);
+      console.log(raw);
+      if (!raw.box) {
+        throw new Error('incorrect format');
+      }
+      var puzzle = convertRawTNY(raw, date);
+      console.log(puzzle);
+      return puzzle;
+    });
 }
 
 
 var TNYLoader = {
-  load: function(date, callback) {
+  load: function(date) {
     // var url = `https://www.nytimes.com/crosswords/game/daily/${date.year}/${date.month}/${date.day}`;
     var url = `https://www.newyorker.com/crossword/puzzles-dept/${date.strSlashes}`;
-    loadTNY(url, date, callback);
+    return loadTNY(url, date);
   },
+  origins: [
+    'http://www.newyorker.com/*',
+    'https://www.newyorker.com/*',
+    'https://cdn3.amuselabs.com/*',
+  ],
 };

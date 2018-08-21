@@ -183,22 +183,30 @@ function update() {
   }
   if (!puzzles[hash]) {
     console.log('grabbing', source, date);
-    loader.load(date, function(_puzzle) {
-      if (!_puzzle) {
-        _puzzle = {
-          error: true,
-        };
-        if (nonErrors) {
-          nonErrors[hash] = false;
+    chrome.permissions.request({
+      origins: loader.origins,
+    }, function(granted) {
+      loader.load(date).then(function(_puzzle) {
+        if (!_puzzle) {
+          throw new Error();
         }
-      } else {
         if (nonErrors) {
           nonErrors[hash] = true;
         }
-      }
-      puzzles[hash] = _puzzle;
-      console.log('grabbed', source, _puzzle);
-      render();
+        puzzles[hash] = _puzzle;
+        console.log('grabbed', source, date, _puzzle);
+        render();
+      }).catch((e) => {
+        puzzles[hash] = {
+          error: true,
+        }
+        if (nonErrors) {
+          nonErrors[hash] = false;
+        }
+        render();
+        console.log('errored', source, date);
+        console.error(e);
+      });
     });
   }
 }

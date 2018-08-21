@@ -9,6 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "babel-plugin-transform-async-to-generator": "^6.24.1",
     "puzjs": "^1.0.0"
   }
 }
