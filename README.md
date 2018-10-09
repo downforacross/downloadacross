@@ -9,6 +9,7 @@ https://chrome.google.com/webstore/detail/download-a-cross/idbdbedhgabnbjfjecpfl
 # installation from source
 
 - `git clone https://github.com/downforacross/downloadacross`
+- `yarn`
 - `./build.sh`
 
 Go to chrome://extensions in developer mode, and click "Load unpacked extension".
