@@ -69,7 +69,7 @@ function selectDate(date) {
 
 var selectedSource = selectedSource;
 function loadState(cbk) {
-  chrome.storage.sync.get({
+  chrome.storage.local.get({
     tagged: {},
     nonErrors: {},
     source: {},
@@ -117,7 +117,7 @@ function saveState() {
     },
   };
   console.log('saving', saveObj);
-  chrome.storage.sync.set(saveObj);
+  chrome.storage.local.set(saveObj);
 }
 
 function pad(num, len, sep) {

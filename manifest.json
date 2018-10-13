@@ -6,10 +6,12 @@
     "storage",
     "activeTab",
     "downloads"
+
   ],
   "optional_permissions": [
     "http://*/",
-    "https://*/"
+    "https://*/",
+    "unlimitedStorage"
   ],
   "browser_action": {
     "default_title": "Download a Cross",
