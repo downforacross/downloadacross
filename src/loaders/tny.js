@@ -99,7 +99,7 @@ var convertRawTNY = function(raw, date, isMini) {
 
 function extractTNYEmbedUrl(doc) {
   var i = doc.indexOf('<iframe id="crossword"');
-  i = doc.indexOf('src=', i) + 5;
+  i = doc.indexOf('data-src=', i) + 10;
   var j = doc.indexOf('"', i);
   return doc.substring(i, j);
 }
