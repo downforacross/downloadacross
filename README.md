@@ -2,6 +2,9 @@
 
 A chrome extension for downloading crosswords.
 
+# chrome web store:
+https://chrome.google.com/webstore/detail/idbdbedhgabnbjfjecpflfomnklpllen
+
 # installation from source
 
 - `git clone https://github.com/downforacross/downloadacross`
