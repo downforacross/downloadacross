@@ -85,7 +85,7 @@ var convertRawTNY = function(raw, date, isMini) {
     down: getClues(raw.placedWords, 'Down'),
   };
 
-  var filename = (isMini ? 'nytmini' : 'nyt') + date.str + date.dayOfWeekStr + '.puz';
+  var filename = 'tny' + date.str + date.dayOfWeekStr + '.puz';
 
   return {
     meta: meta,
