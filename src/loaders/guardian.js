@@ -53,7 +53,7 @@ function crosswordFromId(id) {
 
         }
 
-        const title = doc.querySelector('h1').innerText;
+        const title = "The Guardian " + doc.querySelector('h1').innerText;
 
         return {
             "meta": {
