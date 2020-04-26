@@ -54,14 +54,14 @@ function crosswordFromId(id) {
         }
 
         const title = doc.querySelector('h1').innerText;
-
+        const copyrightSymbol = String.fromCharCode(169); // cannot use inline © symbol in source code as it is served raw, and that messes up encoding
         return {
             "meta": {
                 "description": "",
                 "title": title,
                 "notes": "",
                 "author": "",
-                "copyright": "© 2020 Guardian News & Media Limited or its affiliated companies. All rights reserved."
+                "copyright": `${copyrightSymbol} 2020 Guardian News & Media Limited or its affiliated companies. All rights reserved.`
             },
             grid: grid,
             clues: clues,
