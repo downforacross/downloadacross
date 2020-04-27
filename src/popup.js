@@ -14,6 +14,7 @@ var loaders = {
   'BEQ': BEQLoader,
   'CHE': CHELoader,
   'TNY': TNYLoader,
+  'Guardian Quick': GuardianQuickLoader,
 };
 
 var descriptions = {
