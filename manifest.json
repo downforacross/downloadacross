@@ -1,7 +1,7 @@
 {
   "name": "Download a Cross",
   "description": "Browse crossword puzzles from the archives of all major crossword publishers",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "permissions": [
     "storage",
     "downloads",
